@@ -1,17 +1,8 @@
-import { Configuration, OpenAIApi } from "openai";
-import extract from "extract-json-from-string";
-
-import env from "./env.json" assert { type: "json" };
-
-const configuration = new Configuration({
-  apiKey: env.OPENAI_API_KEY,
-});
-
-const openai = new OpenAIApi(configuration);
+import extract from "extract-json-from-string"
 
 class ServerAgent {
   constructor(id) {
-    this.id = id;
+    this.id = id
   }
 
   async processMessage(parsedData) {
@@ -58,47 +49,45 @@ class ServerAgent {
       The JSON response indicating the next move is.
       `
 
-      const completion = await this.callOpenAI(prompt, 0);
-      return completion;
-
+      const completion = await this.callLLM(prompt, 0)
+      return completion
     } catch (error) {
-      console.error("Error processing GPT-3 response:", error);
+      console.error("Error processing GPT-3 response:", error)
     }
   }
 
-  async callOpenAI(prompt, attempt) {
+  async callLLM(prompt, attempt) {
     if (attempt > 3) {
-      return null;
-    }
-  
-    if (attempt > 0) {
-      prompt = "YOU MUST ONLY RESPOND WITH VALID JSON OBJECTS\N" + prompt;
-    }
-  
-    const response = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: prompt }],
-    });
-  
-    console.log('OpenAI response', response.data.choices[0].message.content)
-  
-    const responseObject = this.cleanAndProcess(response.data.choices[0].message.content);
-    if (responseObject) {
-      return responseObject;
-    }
-  
-    return await this.callOpenAI(prompt, attempt + 1);
-  }
-  
-  cleanAndProcess(text) {
-    const extractedJson = extract(text)[0];
-  
-    if (!extractedJson) {
-      return null;
+      return null
     }
 
-    return extractedJson;
+    if (attempt > 0) {
+      prompt = "YOU MUST ONLY RESPOND WITH VALID JSON OBJECTSN" + prompt
+    }
+
+    const response = await window.ai.getCompletion({
+      messages: [{ role: "user", content: prompt }],
+    })
+
+    console.log("OpenAI response", response.message.content)
+
+    const responseObject = this.cleanAndProcess(response.message.content)
+    if (responseObject) {
+      return responseObject
+    }
+
+    return await this.callLLM(prompt, attempt + 1)
+  }
+
+  cleanAndProcess(text) {
+    const extractedJson = extract(text)[0]
+
+    if (!extractedJson) {
+      return null
+    }
+
+    return extractedJson
   }
 }
 
-export default ServerAgent;
+export default ServerAgent
