@@ -24,8 +24,14 @@ class Agent {
 
   initializeServerListener() {
     setTimeout(() => {
+      // TODO: make this a nicer looking popover instead of native alert
+      if (!window.ai) {
+        alert("window.ai not found. Please install at https://windowai.io/");
+        return;
+      }
+
       this.nextMove()
-    }, 100); // TODO: delay in case window.ai doesn't load fast enough, could remove this later if determined not needed through testing
+    }, 100); // TODO: delay in case window.ai is not injected by the extension fast enough, could remove this later if determined not needed through testing
 
     // TODO: reimplement this to make local version work again.
     // Right now, the ClientAgent duplicates code from ServerAgent
