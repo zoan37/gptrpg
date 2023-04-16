@@ -1,6 +1,4 @@
-import extract from "extract-json-from-string"
-
-class ServerAgent {
+class ClientAgent {
   constructor(id) {
     this.id = id
   }
@@ -80,7 +78,7 @@ class ServerAgent {
   }
 
   cleanAndProcess(text) {
-    const extractedJson = extract(text)[0]
+    const extractedJson = JSON.parse(text);
 
     if (!extractedJson) {
       return null
@@ -90,4 +88,4 @@ class ServerAgent {
   }
 }
 
-export default ServerAgent
+export default ClientAgent

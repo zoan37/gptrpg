@@ -1,3 +1,5 @@
+import ClientAgent from './ClientAgent.js';
+
 class Agent {
   constructor(
     gridEngine,
@@ -13,6 +15,9 @@ class Agent {
 
     // Change this to `this.agent = new ClientAgent(...)` and adapt ServerAgent to
     // make ClientAgent work.
+
+    this.agent = new ClientAgent(this.agent_id);
+
     const socket = new WebSocket("ws://localhost:8080")
     this.socket = socket
 
@@ -161,12 +166,56 @@ class Agent {
     this.sleepiness = Math.min(this.sleepiness + 1, 10)
   }
 
-  nextMove() {
+  async nextMove() {
     const characterPosition = this.getCharacterPosition()
     // const bedP
     const surroundings = this.getSurroundings()
     this.increaseSleepiness()
 
+    const completion = await this.agent.processMessage({
+      type: "requestNextMove",
+      agent_id: this.agent_id,
+      position: characterPosition,
+      surroundings: surroundings,
+      sleepiness: this.sleepiness,
+    });
+
+    // ws.send(JSON.stringify({ type: 'nextMove', agent_id: agentId, data: completion }));
+
+    let res = { type: 'nextMove', agent_id: this.agentId, data: completion };
+
+    const { data } = res
+    switch (data.action.type) {
+      case "move":
+        this.moveAndCheckCollision(
+          data.action.direction,
+          this.fieldMapTileMap
+        )
+        break
+      case "navigate":
+        this.gridEngine.moveTo(this.agent_id, {
+          x: data.action.x,
+          y: data.action.y,
+        })
+        break
+      case "sleep":
+        const { x, y } = this.getCharacterPosition()
+        if (x === this.bedPosition.x && y === this.bedPosition.y) {
+          this.sleepiness = 0
+        } else {
+          console.log(
+            `Character ${this.agent_id} tried to sleep out of bed.`
+          )
+        }
+        this.nextMove()
+        break
+      default:
+        setTimeout(() => {
+          this.nextMove()
+        }, 2000)
+    }
+
+    /*
     this.socket.send(
       JSON.stringify({
         type: "requestNextMove",
@@ -176,6 +225,7 @@ class Agent {
         sleepiness: this.sleepiness,
       })
     )
+    */
   }
 }
 
