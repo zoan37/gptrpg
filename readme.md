@@ -1,3 +1,9 @@
+**Demo:** https://gptrpg.vercel.app/
+
+Note: This is a fork to integrate [window.ai](https://windowai.io/) into GPTRPG so it can be deployed as a web app and allow the user to use their own LLM model. The code is in a hacky state and currently breaks running GPTRPG locally in the original way with `npm start` at the root directory; `npm start` in the `ui-admin` directory works.
+
+---
+
 # GPTRPG
 
 ![map of the game](map.png)
