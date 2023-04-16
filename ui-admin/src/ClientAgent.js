@@ -1,3 +1,5 @@
+import extract from "extract-json-from-string"
+
 class ClientAgent {
   constructor(id) {
     this.id = id
@@ -65,6 +67,8 @@ class ClientAgent {
 
     const response = await window.ai.getCompletion({
       messages: [{ role: "user", content: prompt }],
+    }, {
+      temperature: 0.7,
     })
 
     console.log("LLM response", response.message.content)
@@ -78,7 +82,7 @@ class ClientAgent {
   }
 
   cleanAndProcess(text) {
-    const extractedJson = JSON.parse(text);
+    const extractedJson = extract(text)[0]
 
     if (!extractedJson) {
       return null
